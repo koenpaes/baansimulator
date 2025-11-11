@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Baansimulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --controls-height: 22vh;
+      --canvas-height: 78vh;
+      --gap: 8px;
+      --panel-padding: 10px;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    .instructions {
+      padding: 12px;
+      background: #fafafa;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 0.95rem;
+    }
+
+    .controls {
+      height: var(--controls-height);
+      padding: var(--panel-padding);
+      display: flex;
+      gap: var(--gap);
+      align-items: flex-start;
+      flex-wrap: wrap;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+    }
+    .control-col { display:flex; flex-direction:column; gap:6px; min-width:180px; }
+    .control-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    label { font-size: 0.9rem; }
+    input[type="text"] { width: 260px; padding:4px 6px; border:1px solid #bbb; border-radius:4px; }
+    input[type="range"] { width: 160px; }
+    .buttons { display:flex; gap:8px; flex-wrap:wrap; }
+    button { padding:6px 10px; border-radius:6px; border:1px solid #888; background:#eee; cursor:pointer; }
+    button.primary { background:#4caf50; color:#fff; border-color:#3a8a3a; }
+    button.warn { background:#f44336; color:#fff; border-color:#b6302a; }
+    .status { margin-left: 12px; font-size: 0.95rem; }
+    .expr-error { color: #b71c1c; font-size: 0.85rem; }
+    .canvas-wrap { height: var(--canvas-height); width: 100%; }
+    canvas { display:block; width:100%; height:100%; background:#f5f5f5; border:1px solid black; }
+    .checkboxes { display:flex; gap:12px; align-items:center; margin-top:6px; flex-wrap:wrap; }
+    .preset-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; margin-top:6px; }
+    .preset-grid .preset-btn { padding:8px; border-radius:6px; border:1px solid #888; background:#efefef; cursor:pointer; width:100%; }
+    @media (max-width: 900px) { input[type="text"]{width:180px;} .control-col{min-width:140px;} }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="instructions">
+      Stel met de sliders een beginsnelheid en -richting in en geef in de tekstvelden in hoe de tangentiële en normaalversnelling veranderen in functie
+      van de tijd. Bestudeer vervolgens de baan die het deeltje volgt en het verband tussen de snelheids- en versnellingsvectoren.
+    </div>
+
+    <div class="controls">
+      <div class="control-col">
+        <!-- Simulation time slider above the buttons -->
+        <label>Simulation time: <span id="simTimeValue">30.0</span> s</label>
+        <input type="range" id="simTimeRange" min="1" max="120" step="0.5" value="120">
+
+        <div class="control-row">
+          <div class="buttons">
+            <button id="playBtn" class="primary">Play</button>
+            <button id="pauseBtn">Pause</button>
+            <button id="stepBtn">Step</button>
+            <button id="resetBtn" class="warn">Reset</button>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <label>t: <span id="tValue">0.00</span> s</label>
+          <label style="margin-left:10px;">a<sub>t</sub>: <span id="aTValue">0.00</span> m/s²</label>
+          <label style="margin-left:10px;">a<sub>n</sub>: <span id="aNValue">0.00</span> m/s²</label>
+        </div>
+
+        <div class="checkboxes">
+          <label><input type="checkbox" id="showVelocity"> Show velocity</label>
+          <label><input type="checkbox" id="showAcceleration"> Show acceleration</label>
+          <label><input type="checkbox" id="showFullTrajectory"> Show full trajectory</label>
+        </div>
+      </div>
+
+      <div class="control-col">
+        <label>v₀ (m/s): <span id="v0Value">1.00</span></label>
+        <input type="range" id="v0Range" min="0" max="10" step="0.02" value="4.32">
+        <label>θ₀ (deg): <span id="thetaValue">-45°</span></label>
+        <input type="range" id="thetaRange" min="-180" max="180" step="1" value="-45">
+      </div>
+
+      <div class="control-col">
+        <label for="aTInput">Tangential acceleration a<sub>t</sub>(t):</label>
+        <input type="text" id="aTInput" value="1">
+        <div class="expr-error" id="aTError"></div>
+      </div>
+
+      <div class="control-col">
+        <label for="aNInput">Normal acceleration a<sub>n</sub>(t):</label>
+        <input type="text" id="aNInput" value="3">
+        <div class="expr-error" id="aNError"></div>
+      </div>
+
+      <div class="control-col">
+        <div class="control-row">
+          <!-- presets arranged two rows of three -->
+          <div class="preset-grid" style="width:100%;">
+            <button id="preset1" class="preset-btn">EVRB</button>
+            <button id="preset2" class="preset-btn">ECB</button>
+            <button id="preset3" class="preset-btn">Schuine Worp</button>
+            <button id="preset4" class="preset-btn">Slinger</button>
+            <button id="preset5" class="preset-btn">Spiraal</button>
+            <button id="preset6" class="preset-btn">a_n periodiek</button>
+          </div>
+        </div>
+        <div class="status" id="status"></div>
+      </div>
+    </div>
+
+    <div class="canvas-wrap"><canvas id="canvas"></canvas></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
