@@ -206,28 +206,59 @@
 
   <script src="script.js"></script>
   <script>
-    // --- Collapsible controls for mobile ---
-    const toggleBtn = document.getElementById("toggleControlsBtn");
-    const controlsPanel = document.getElementById("controlsPanel");
+  const toggleBtn = document.getElementById("toggleControlsBtn");
+  const controlsPanel = document.getElementById("controlsPanel");
 
-    function checkMobile() {
-      if (window.innerWidth <= 768) {
-        toggleBtn.style.display = "block";
+  // --- detect mobile / small screen ---
+  function isMobileDevice() {
+    return /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+  }
+
+  function checkMobile() {
+    const mobile = isMobileDevice() || window.innerWidth <= 768;
+
+    if (mobile) {
+      toggleBtn.style.display = "block";
+      if (!controlsPanel.classList.contains("visible")) {
         controlsPanel.classList.remove("visible");
         toggleBtn.textContent = "Show Controls";
-      } else {
-        toggleBtn.style.display = "none";
-        controlsPanel.classList.add("visible");
       }
+    } else {
+      toggleBtn.style.display = "none";
+      controlsPanel.classList.add("visible");
     }
+  }
 
-    toggleBtn.addEventListener("click", () => {
-      const visible = controlsPanel.classList.toggle("visible");
-      toggleBtn.textContent = visible ? "Hide Controls" : "Show Controls";
-    });
+  // --- toggle button behavior ---
+  toggleBtn.addEventListener("click", () => {
+    const visible = controlsPanel.classList.toggle("visible");
+    toggleBtn.textContent = visible ? "Hide Controls" : "Show Controls";
+    if (visible && window.resizeCanvas) {
+      // ensure canvas fits correctly when controls appear
+      setTimeout(() => resizeCanvas(), 300);
+    }
+  });
 
-    window.addEventListener("resize", checkMobile);
-    window.addEventListener("DOMContentLoaded", checkMobile);
-  </script>
+  // --- handle screen/orientation changes ---
+  window.addEventListener("resize", () => {
+    checkMobile();
+    if (window.resizeCanvas) resizeCanvas();
+  });
+
+  window.addEventListener("orientationchange", () => {
+    // Wait a little for the browser to finish rotating/resizing the viewport
+    setTimeout(() => {
+      checkMobile();
+      if (window.resizeCanvas) resizeCanvas();
+    }, 400);
+  });
+
+  window.addEventListener("DOMContentLoaded", () => {
+    checkMobile();
+    if (window.resizeCanvas) resizeCanvas();
+  });
+</script>
+
 </body>
 </html>
+
