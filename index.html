@@ -11,12 +11,14 @@
       --gap: 8px;
       --panel-padding: 10px;
     }
+
     html, body {
       height: 100%;
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
     }
+
     .container {
       display: flex;
       flex-direction: column;
@@ -41,7 +43,9 @@
       flex-wrap: wrap;
       background: #fff;
       border-bottom: 1px solid #ddd;
+      transition: all 0.3s ease;
     }
+
     .control-col { display:flex; flex-direction:column; gap:6px; min-width:180px; }
     .control-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     label { font-size: 0.9rem; }
@@ -58,19 +62,88 @@
     .checkboxes { display:flex; gap:12px; align-items:center; margin-top:6px; flex-wrap:wrap; }
     .preset-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; margin-top:6px; }
     .preset-grid .preset-btn { padding:8px; border-radius:6px; border:1px solid #888; background:#efefef; cursor:pointer; width:100%; }
-    @media (max-width: 900px) { input[type="text"]{width:180px;} .control-col{min-width:140px;} }
+
+    @media (max-width: 900px) {
+      input[type="text"]{width:180px;}
+      .control-col{min-width:140px;}
+    }
+
+    /* --- MOBILE VERSION FIX --- */
+    @media (max-width: 768px) {
+      html, body {
+        height: auto;
+        overflow-y: auto;
+      }
+
+      .container {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+      }
+
+      /* Hide the instructions section entirely on mobile */
+      .instructions { display: none; }
+
+      /* Collapsible controls panel */
+      .controls {
+        height: auto;
+        flex-direction: column;
+        align-items: stretch;
+        border-bottom: none;
+        background: #fafafa;
+        padding: 8px;
+        display: none; /* hidden by default on small screens */
+      }
+
+      .controls.visible {
+        display: flex;
+      }
+
+      /* Toggle button visible only on mobile */
+      .toggle-controls-btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: #4caf50;
+        color: white;
+        font-size: 1rem;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+      }
+
+      /* Bigger controls for touch */
+      button, input[type="range"], input[type="text"] {
+        font-size: 1.1rem;
+        padding: 10px;
+      }
+
+      .preset-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .canvas-wrap {
+        flex: 1;
+        height: 70vh;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
+
     <div class="instructions">
       Stel met de sliders een beginsnelheid en -richting in en geef in de tekstvelden in hoe de tangentiële en normaalversnelling veranderen in functie
       van de tijd. Bestudeer vervolgens de baan die het deeltje volgt en het verband tussen de snelheids- en versnellingsvectoren.
     </div>
 
-    <div class="controls">
+    <!-- Toggle button appears only on mobile -->
+    <button id="toggleControlsBtn" class="toggle-controls-btn" style="display:none;">
+      Show Controls
+    </button>
+
+    <div class="controls" id="controlsPanel">
       <div class="control-col">
-        <!-- Simulation time slider above the buttons -->
         <label>Simulation time: <span id="simTimeValue">30.0</span> s</label>
         <input type="range" id="simTimeRange" min="1" max="120" step="0.5" value="120">
 
@@ -116,16 +189,13 @@
       </div>
 
       <div class="control-col">
-        <div class="control-row">
-          <!-- presets arranged two rows of three -->
-          <div class="preset-grid" style="width:100%;">
-            <button id="preset1" class="preset-btn">EVRB</button>
-            <button id="preset2" class="preset-btn">ECB</button>
-            <button id="preset3" class="preset-btn">Schuine Worp</button>
-            <button id="preset4" class="preset-btn">Slinger</button>
-            <button id="preset5" class="preset-btn">Spiraal</button>
-            <button id="preset6" class="preset-btn">a_n periodiek</button>
-          </div>
+        <div class="preset-grid" style="width:100%;">
+          <button id="preset1" class="preset-btn">EVRB</button>
+          <button id="preset2" class="preset-btn">ECB</button>
+          <button id="preset3" class="preset-btn">Schuine Worp</button>
+          <button id="preset4" class="preset-btn">Slinger</button>
+          <button id="preset5" class="preset-btn">Spiraal</button>
+          <button id="preset6" class="preset-btn">a_n periodiek</button>
         </div>
         <div class="status" id="status"></div>
       </div>
@@ -135,5 +205,29 @@
   </div>
 
   <script src="script.js"></script>
+  <script>
+    // --- Collapsible controls for mobile ---
+    const toggleBtn = document.getElementById("toggleControlsBtn");
+    const controlsPanel = document.getElementById("controlsPanel");
+
+    function checkMobile() {
+      if (window.innerWidth <= 768) {
+        toggleBtn.style.display = "block";
+        controlsPanel.classList.remove("visible");
+        toggleBtn.textContent = "Show Controls";
+      } else {
+        toggleBtn.style.display = "none";
+        controlsPanel.classList.add("visible");
+      }
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      const visible = controlsPanel.classList.toggle("visible");
+      toggleBtn.textContent = visible ? "Hide Controls" : "Show Controls";
+    });
+
+    window.addEventListener("resize", checkMobile);
+    window.addEventListener("DOMContentLoaded", checkMobile);
+  </script>
 </body>
 </html>
