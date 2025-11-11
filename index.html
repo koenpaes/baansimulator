@@ -205,17 +205,19 @@
   </div>
 
   <script src="script.js"></script>
-  <script>
+ <script>
   const toggleBtn = document.getElementById("toggleControlsBtn");
   const controlsPanel = document.getElementById("controlsPanel");
 
-  // --- detect mobile / small screen ---
+  // --- robust mobile detection (orientation-independent) ---
   function isMobileDevice() {
-    return /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+    return /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
   }
 
-  function checkMobile() {
-    const mobile = isMobileDevice() || window.innerWidth <= 768;
+  let forceMobile = isMobileDevice(); // lock to true for smartphones
+
+  function applyLayout() {
+    const mobile = forceMobile || window.innerWidth <= 768;
 
     if (mobile) {
       toggleBtn.style.display = "block";
@@ -227,6 +229,9 @@
       toggleBtn.style.display = "none";
       controlsPanel.classList.add("visible");
     }
+
+    // always ensure canvas fits correctly
+    if (window.resizeCanvas) resizeCanvas();
   }
 
   // --- toggle button behavior ---
@@ -234,31 +239,28 @@
     const visible = controlsPanel.classList.toggle("visible");
     toggleBtn.textContent = visible ? "Hide Controls" : "Show Controls";
     if (visible && window.resizeCanvas) {
-      // ensure canvas fits correctly when controls appear
       setTimeout(() => resizeCanvas(), 300);
     }
   });
 
-  // --- handle screen/orientation changes ---
+  // --- handle orientation and resize changes ---
   window.addEventListener("resize", () => {
-    checkMobile();
-    if (window.resizeCanvas) resizeCanvas();
+    applyLayout();
   });
 
   window.addEventListener("orientationchange", () => {
-    // Wait a little for the browser to finish rotating/resizing the viewport
+    // Wait a bit for viewport to stabilize after rotation
     setTimeout(() => {
-      checkMobile();
-      if (window.resizeCanvas) resizeCanvas();
+      applyLayout();
     }, 400);
   });
 
   window.addEventListener("DOMContentLoaded", () => {
-    checkMobile();
-    if (window.resizeCanvas) resizeCanvas();
+    applyLayout();
   });
 </script>
 
 </body>
 </html>
+
 
