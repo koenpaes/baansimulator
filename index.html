@@ -66,26 +66,52 @@
     .preset-grid .preset-btn { padding:8px; border-radius:6px; border:1px solid #888; background:#efefef; cursor:pointer; width:100%; }
     @media (max-width: 900px) { input[type="text"]{width:180px;} .control-col{min-width:140px;} }
 
-    /* ✅ Mobile optimization: ensure scrollable controls and zoom-friendly layout */
-    @media (max-width: 600px) {
+    /* ✅ Portrait & narrow mobile layout */
+    @media (max-width: 600px) and (orientation: portrait) {
       html, body {
         height: auto;
         overflow-y: auto;
       }
       .container {
         height: auto;
-        overflow-y: auto; /* allow full scrolling */
+        overflow-y: auto;
       }
       .controls {
-        height: auto; /* let controls expand naturally */
+        height: auto;
         flex-direction: column;
         align-items: stretch;
       }
       .canvas-wrap {
-        height: 60vh; /* leave enough space for controls */
+        height: 60vh;
       }
       .preset-grid {
-        grid-template-columns: repeat(2, 1fr); /* better fit for narrow screens */
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* ✅ Landscape on small devices only */
+    @media (max-width: 900px) and (orientation: landscape) {
+      html, body {
+        height: auto;
+        overflow-y: auto;
+      }
+      .container {
+        height: auto;
+        overflow-y: auto;
+      }
+      .controls {
+        height: auto;
+        flex-direction: row;  /* more horizontal, fits better in landscape */
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+      .canvas-wrap {
+        height: auto;
+        min-height: 70vh; /* keep most of the screen for canvas */
+      }
+      .canvas-wrap canvas {
+        width: 100%;
+        height: auto;
       }
     }
   </style>
