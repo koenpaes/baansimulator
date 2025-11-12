@@ -6,6 +6,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const playBtn = document.getElementById("playBtn");
   const pauseBtn = document.getElementById("pauseBtn");
+  const stepBackBtn = document.getElementById("stepBackBtn");
   const stepBtn = document.getElementById("stepBtn");
   const resetBtn = document.getElementById("resetBtn");
 
@@ -202,7 +203,7 @@ window.addEventListener("DOMContentLoaded", () => {
       preset2: { v0: 2, theta: 0, tmax: 60, aT: "0", aN: "1" },
       preset3: { v0: 10, theta: 60, tmax: 5*Math.sqrt(3), aT: "(4*t-2*v0*sin(theta0))/sqrt(v0^2+4*t^2-4*v0*sin(theta0)*t)", aN: "(-2*v0*cos(theta0))/sqrt(v0^2+4*t^2-4*v0*sin(theta0)*t)" },                
       preset4: { v0: 8, theta: 0, tmax: 30, aT: "(-1)*v0*sin(t)*cos(t)/sqrt(cos(t)^2)", aN: "v0*cos(t)^2/sqrt(cos(t)^2)" },
-      preset5: { v0: 2, theta: 0, tmax: 60, aT: "0", aN: "t^(1/4)" },
+      preset5: { v0: 4.6, theta: 0, tmax: 60, aT: "0", aN: "6-0.2*t" },
       preset6: { v0: 4.32, theta: -45, tmax: 60, aT: "1.5*cos(t)", aN: "-1.899+3*sin(t)" }
   };
 
@@ -598,9 +599,16 @@ window.addEventListener("DOMContentLoaded", () => {
       drawTrajectory();
   }
 
+   function stepBackOnce() {
+      if (t > 0) {
+          t = Math.max(0, t - 5*dt);
+          drawTrajectory();
+      }
+  }
+
   function stepOnce() {
       if (t < t_max) {
-          t = Math.min(t_max, t + dt);
+          t = Math.min(t_max, t + 5*dt);
           drawTrajectory();
       }
   }
@@ -629,6 +637,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // --- Event listeners ---
   playBtn.addEventListener("click", () => { play(); });
   pauseBtn.addEventListener("click", () => { pause(); });
+  stepBackBtn.addEventListener("click", () => { pause(); stepBackOnce(); });
   stepBtn.addEventListener("click", () => { pause(); stepOnce(); });
   resetBtn.addEventListener("click", () => { resetSim(); });
 
