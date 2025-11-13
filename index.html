@@ -9,10 +9,7 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0, minimum-scale=1, maximum-scale=5, user-scalable=yes"
   />
-
-  <!-- ✅ gif.js library for GIF export -->
-  <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
-
+  
   <style>
     :root {
       --controls-height: 22vh;
@@ -152,8 +149,6 @@
           <label><input type="checkbox" id="showVelocity" checked> Show velocity</label>
           <label><input type="checkbox" id="showAcceleration" checked> Show acceleration</label>
           <label><input type="checkbox" id="showFullTrajectory"> Show full trajectory</label>
-          <!-- ✅ New button added to the right of the last checkbox -->
-          <button id="exportGifBtn">Export as GIF</button>
         </div>
       </div>
 
@@ -194,6 +189,7 @@
 
     <div class="canvas-wrap"><canvas id="canvas"></canvas></div>
   </div>
+
 
   <script src="script.js"></script>
 </body>
