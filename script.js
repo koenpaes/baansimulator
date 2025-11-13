@@ -4,6 +4,9 @@ window.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
 
+  const exportGifBtn = document.getElementById("exportGifBtn");
+
+
   const playBtn = document.getElementById("playBtn");
   const pauseBtn = document.getElementById("pauseBtn");
   const stepBackBtn = document.getElementById("stepBackBtn");
@@ -634,6 +637,65 @@ window.addEventListener("DOMContentLoaded", () => {
       drawTrajectory();
   }
 
+  // --- Export simulation as GIF ---
+async function exportSimulationAsGIF() {
+  pause(); // stop playing if currently running
+
+  const gif = new GIF({
+  workers: 2,
+  quality: 10,
+  workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.min.js'
+});
+
+
+  const originalT = t;
+  const frameRate = 30; // FPS
+  const frameStep = 1 / frameRate;
+  const totalFrames = Math.floor(t_max / frameStep);
+  const originalShowFullTrajectory = showFullTrajectoryChk.checked;
+
+  showFullTrajectoryChk.checked = false;
+  statusDiv.textContent = "Generating GIF... 0%";
+  statusDiv.style.color = "blue";
+
+  for (let frame = 0; frame <= totalFrames; frame++) {
+    t = frame * frameStep;
+    drawTrajectory();
+
+    // ✅ Fix: use canvas element, not context
+    gif.addFrame(canvas, { copy: true, delay: 1000 / frameRate });
+
+    if (frame % 10 === 0) {
+      const progress = ((frame / totalFrames) * 100).toFixed(0);
+      statusDiv.textContent = `Generating GIF... ${progress}%`;
+      await new Promise(r => setTimeout(r)); // yield to UI
+    }
+  }
+
+  statusDiv.textContent = "Finalizing GIF...";
+
+  gif.on('finished', function(blob) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'simulation.gif';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    statusDiv.textContent = "GIF exported successfully!";
+    statusDiv.style.color = "green";
+
+    // restore settings
+    t = originalT;
+    showFullTrajectoryChk.checked = originalShowFullTrajectory;
+    drawTrajectory();
+  });
+
+  gif.render();
+}
+
+
+
   // --- Event listeners ---
   playBtn.addEventListener("click", () => { play(); });
   pauseBtn.addEventListener("click", () => { pause(); });
@@ -714,6 +776,9 @@ window.addEventListener("DOMContentLoaded", () => {
           resizeCanvas();
       }, 80);
   });
+
+  exportGifBtn.addEventListener("click", exportSimulationAsGIF);
+
 
   // --- Initialization ---
   function init() {
