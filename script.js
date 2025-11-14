@@ -31,6 +31,9 @@ window.addEventListener("DOMContentLoaded", () => {
   const preset4Btn = document.getElementById("preset4");
   const preset5Btn = document.getElementById("preset5");
   const preset6Btn = document.getElementById("preset6");
+  const preset7Btn = document.getElementById("preset7");
+  const preset8Btn = document.getElementById("preset8");
+  const preset9Btn = document.getElementById("preset9");
 
   const statusDiv = document.getElementById("status");
 
@@ -198,14 +201,17 @@ window.addEventListener("DOMContentLoaded", () => {
       return ok;
   }
 
-  // --- Presets (6) ---
+  // --- Presets (9) ---
   const presets = {
       preset1: { v0: 2, theta: 0, tmax: 30, aT: "1", aN: "0" },                     
       preset2: { v0: 2, theta: 0, tmax: 60, aT: "0", aN: "1" },
-      preset3: { v0: 10, theta: 60, tmax: 5*Math.sqrt(3), aT: "(4*t-2*v0*sin(theta0))/sqrt(v0^2+4*t^2-4*v0*sin(theta0)*t)", aN: "(-2*v0*cos(theta0))/sqrt(v0^2+4*t^2-4*v0*sin(theta0)*t)" },                
+      preset3: { v0: 0, theta: 0, tmax: 20, aT: "30", aN: "t^2" },
       preset4: { v0: 8, theta: 0, tmax: 30, aT: "(-1)*v0*sin(t)*cos(t)/sqrt(cos(t)^2)", aN: "v0*cos(t)^2/sqrt(cos(t)^2)" },
-      preset5: { v0: 4.6, theta: 0, tmax: 60, aT: "0", aN: "6-0.2*t" },
-      preset6: { v0: 4.32, theta: -45, tmax: 60, aT: "1.5*cos(t)", aN: "-1.899+3*sin(t)" }
+      preset5: { v0: 10, theta: 60, tmax: 5*Math.sqrt(3), aT: "(4*t-2*v0*sin(theta0))/sqrt(v0^2+4*t^2-4*v0*sin(theta0)*t)", aN: "(-2*v0*cos(theta0))/sqrt(v0^2+4*t^2-4*v0*sin(theta0)*t)" },                
+      preset6: { v0: 0, theta: 90, tmax: 20, aT: "cos(t)", aN: "0" },
+      preset7: { v0: 4.6, theta: 0, tmax: 60, aT: "0", aN: "6-0.2*t" },
+      preset8: { v0: 5.73, theta: -36, tmax: 60, aT: "0", aN: "-1.91+8*sin(t)" },
+      preset9: { v0: 4.32, theta: -45, tmax: 60, aT: "1.5*cos(t)", aN: "-1.899+3*sin(t)" }
   };
 
   function applyPreset(name) {
@@ -706,6 +712,10 @@ window.addEventListener("DOMContentLoaded", () => {
   preset4Btn.addEventListener("click", () => { applyPreset("preset4"); });
   preset5Btn.addEventListener("click", () => { applyPreset("preset5"); });
   preset6Btn.addEventListener("click", () => { applyPreset("preset6"); });
+  preset7Btn.addEventListener("click", () => { applyPreset("preset7"); });
+  preset8Btn.addEventListener("click", () => { applyPreset("preset8"); });
+  preset9Btn.addEventListener("click", () => { applyPreset("preset9"); });
+
 
   // checkboxes: just redraw / recompute if needed
   showVelocityChk.addEventListener("change", () => { drawTrajectory(); });
